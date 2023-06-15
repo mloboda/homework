@@ -11,14 +11,10 @@ class SQLiteORM:
         self.cursor.execute(query)
         self.conn.commit()
 
-    def insert_data(self, table_name, data):
-        existing_data = self.select_by_key(table_name, 'id', data[0])
-        if not existing_data:
-            query = f'INSERT INTO {table_name} VALUES ({data})'
-            self.cursor.execute(query)
-            self.conn.commit()
-        else:
-            print('Data with the same id already exists')
+    def insert_data(self, columns_names, table_name, data):
+        query = f'INSERT INTO {table_name}{columns_names} VALUES ({data})'
+        self.cursor.execute(query)
+        self.conn.commit()
 
     def update_data(self, table_name, column, value, condition_column, condition_value):
         query = f"UPDATE {table_name} SET {column} = '{value}' WHERE {condition_column} = '{condition_value}'"
@@ -48,12 +44,12 @@ class SQLiteORM:
 if __name__ == '__main__':
     orm = SQLiteORM('my_db.db')
 
-    orm.create_table('people', 'id INTEGER PRIMARY KEY, name TEXT, age INTEGER')
+    orm.create_table('people', 'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER')
 
-    orm.insert_data('people', "1, 'John', 25")
-    orm.insert_data('people', "2, 'Anna', 30")
-    orm.insert_data('people', "3, 'Maks', 20")
-    orm.insert_data('people', "4, 'Bob', 50")
+    orm.insert_data(('name', 'age'), 'people', "'John', 15")
+    orm.insert_data(('name', 'age'), 'people', "'Anna', 30")
+    orm.insert_data(('name', 'age'), 'people', "'Maks', 20")
+    orm.insert_data(('name', 'age'), 'people', "'Bob', 50")
     print(f'Added records to the database: {orm.select_all("people")}')
 
     orm.update_data('people', 'age', 70, 'name', 'John')
